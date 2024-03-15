@@ -31,6 +31,62 @@ size_t Size(void* ptr)
 // extraMemoryAllocated counts bytes of extra memory allocated
 void mergeSort(int pData[], int l, int r)
 {
+	if (l < r) {
+        int m = l + (r - l) / 2;
+
+        mergeSort(pData, l, m);
+        mergeSort(pData, m + 1, r);
+
+        // Merge the sorted halves in-place
+        int i, j, k;
+        int n1 = m - l + 1;
+        int n2 = r - m;
+
+        // Create temporary arrays for left and right halves
+        int *L = Alloc(n1*sizeof(int)); 
+		int *R = Alloc(n2*sizeof(int));
+
+        // Copy data to temporary arrays L[] and R[]
+        for (i = 0; i < n1; i++)
+            L[i] = pData[l + i];
+
+        for (j = 0; j < n2; j++)
+            R[j] = pData[m + 1 + j];
+
+        // Merge the temporary arrays back into pData[l..r]
+        i = 0; // Initial index of first subarray
+        j = 0; // Initial index of second subarray
+        k = l; // Initial index of merged subarray
+
+        while (i < n1 && j < n2) {
+            if (L[i] <= R[j]) {
+                pData[k] = L[i];
+                i++;
+            } else {
+                pData[k] = R[j];
+                j++;
+            }
+            k++;
+        }
+
+        // Copy the remaining elements of L[], if any
+        while (i < n1) {
+            pData[k] = L[i];
+            i++;
+            k++;
+        }
+
+        // Copy the remaining elements of R[], if any
+        while (j < n2) {
+            pData[k] = R[j];
+            j++;
+            k++;
+        }
+
+		//deallocate memory
+		DeAlloc(L);
+		DeAlloc(R);
+    }
 }
 
 // parses input file to an integer array
@@ -67,15 +123,16 @@ int parseData(char *inputFileName, int **ppData)
 // prints first and last 100 items in the data array
 void printArray(int pData[], int dataSz)
 {
-	int i, sz = dataSz - 100;
+	int i, sz = (dataSz > 100 ? dataSz - 100 : 0);
+	int firstHundred = (dataSz < 100 ? dataSz : 100);
 	printf("\tData:\n\t");
-	for (i=0;i<100;++i)
+	for (i=0;i<firstHundred;++i)
 	{
 		printf("%d ",pData[i]);
 	}
 	printf("\n\t");
-	
-	for (i=sz;i<dataSz;++i)
+	int lastHundred = (dataSz > 100 ?  dataSz: 0);
+	for (i=sz;i<lastHundred;++i)
 	{
 		printf("%d ",pData[i]);
 	}
